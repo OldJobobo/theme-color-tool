@@ -1,16 +1,41 @@
 # Theme Color Tool
 
-Applies a Base16 YAML scheme to the theme files in the current directory.
+Apply a Base16 YAML scheme to theme files in the current directory. This tool is
+meant to run inside a theme repo and rewrites supported files in place using the
+Base16 `base00`-`base0F` values.
 
-This script is intended to be run from inside a theme repo.
-It rewrites each supported file in place using the Base16 `base00`-`base0F` values
-from the scheme.
+## Installation
+
+Install with pipx (recommended):
+
+```bash
+pipx install git+https://github.com/OldJobobo/theme-color-tool.git
+```
+
+Or install with pip:
+
+```bash
+python3 -m pip install --user git+https://github.com/OldJobobo/theme-color-tool.git
+```
 
 ## Usage
 
+Installed (from any theme directory):
+
 ```bash
-# run from inside a theme directory
+theme-color-apply -s <Your Base16 Scheme>.yaml
+```
+
+From the repo without installing:
+
+```bash
 python3 apply-theme.py -s <Your Base16 Scheme>.yaml
+```
+
+Module form:
+
+```bash
+python3 -m theme_color_tool.apply_theme -s <Your Base16 Scheme>.yaml
 ```
 
 ## Options
@@ -51,23 +76,3 @@ System apps:
 - `btop.theme`
 - `cava_theme`
 - `chromium.theme`
-
-## Installation (Placeholder)
-
-To install from a git repo using pipx (recommended):
-
-```bash
-pipx install git+https://github.com/OldJobobo/theme-color-tool.git
-```
-
-If you do not use pipx, you can also install with pip:
-
-```bash
-python3 -m pip install --user git+https://github.com/OldJobobo/theme-color-tool.git
-```
-
-Then run from any theme directory (the tool rewrites files in the current folder):
-
-```bash
-theme-color-apply -s <Your Base16 Scheme>.yaml
-```
