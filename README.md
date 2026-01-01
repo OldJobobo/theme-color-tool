@@ -26,17 +26,8 @@ Installed (from any theme directory):
 theme-color-apply -s <Your Base16 Scheme>.yaml
 ```
 
-From the repo without installing:
-
-```bash
-python3 apply-theme.py -s <Your Base16 Scheme>.yaml
-```
-
-Module form:
-
-```bash
-python3 -m theme_color_tool.apply_theme -s <Your Base16 Scheme>.yaml
-```
+Note: this tool is meant to be run from inside a theme directory (the folder
+whose files you want to rewrite).
 
 ## Options
 
