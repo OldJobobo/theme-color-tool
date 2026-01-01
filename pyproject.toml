@@ -3,16 +3,16 @@ requires = ["setuptools>=61"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "omarchy-theme-tool"
+name = "theme-color-tool"
 version = "0.1.1"
-description = "Apply Base16 schemes to Omarchy theme files."
+description = "Apply Base16 schemes to theme files."
 readme = "README.md"
 requires-python = ">=3.8"
 license = {text = "MIT"}
 authors = [
-  {name = "Omarchy Theme Tool"},
+  {name = "Theme Color Tool"},
 ]
-keywords = ["base16", "theme", "omarchy", "colors"]
+keywords = ["base16", "theme", "colors"]
 classifiers = [
   "Programming Language :: Python :: 3",
   "License :: OSI Approved :: MIT License",
@@ -20,8 +20,8 @@ classifiers = [
 ]
 
 [project.scripts]
-omarchy-apply = "omarchy_theme_tool.apply_theme:main_cli"
+theme-color-apply = "theme_color_tool.apply_theme:main_cli"
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["omarchy_theme_tool"]
+include = ["theme_color_tool"]

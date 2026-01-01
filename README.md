@@ -1,8 +1,8 @@
-# Omarchy Theme Apply Tool
+# Theme Color Tool
 
 Applies a Base16 YAML scheme to the theme files in the current directory.
 
-This script is intended to be run from inside an Omarchy theme repo.
+This script is intended to be run from inside a theme repo.
 It rewrites each supported file with the color values from the scheme.
 
 ## Usage
@@ -55,17 +55,17 @@ System apps:
 To install from a git repo using pipx (recommended):
 
 ```bash
-pipx install git+https://github.com/yourname/omarchy-theme-tool
+pipx install git+https://github.com/OldJobobo/theme-color-tool.git
 ```
 
 If you do not use pipx, you can also install with pip:
 
 ```bash
-python3 -m pip install --user git+https://github.com/yourname/omarchy-theme-tool
+python3 -m pip install --user git+https://github.com/OldJobobo/theme-color-tool.git
 ```
 
 Then run from any theme directory (the tool rewrites files in the current folder):
 
 ```bash
-omarchy-apply -s base16-scheme.yaml  # example scheme file
+theme-color-apply -s base16-scheme.yaml  # example scheme file
 ```
