@@ -182,10 +182,6 @@ def update_neovim(contents, palette):
             replaced_keys.add(key)
             report.append(f"{key} -> {value}")
 
-    missing = [key for key in neovim.keys() if key not in replaced_keys]
-    if missing:
-        report.append("missing keys: " + ", ".join(missing))
-
     return updated, report
 
 
