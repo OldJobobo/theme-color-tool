@@ -3,17 +3,19 @@
 Applies a Base16 YAML scheme to the theme files in the current directory.
 
 This script is intended to be run from inside a theme repo.
-It rewrites each supported file with the color values from the scheme.
+It rewrites each supported file in place using the Base16 `base00`-`base0F` values
+from the scheme.
 
 ## Usage
 
 ```bash
-python3 apply-theme.py -s base16-scheme.yaml  # example scheme file
+# run from inside a theme directory
+python3 apply-theme.py -s <Your Base16 Scheme>.yaml
 ```
 
 ## Options
 
-- `-s`, `--scheme` Path to a Base16 YAML scheme file.
+- `-s`, `--scheme` Path to a Base16 YAML scheme file (must include `base00`-`base0F`).
 - `-q`, `--quiet`  Suppress per-file reporting.
 
 ## Supported Files
@@ -67,5 +69,5 @@ python3 -m pip install --user git+https://github.com/OldJobobo/theme-color-tool.
 Then run from any theme directory (the tool rewrites files in the current folder):
 
 ```bash
-theme-color-apply -s base16-scheme.yaml  # example scheme file
+theme-color-apply -s <Your Base16 Scheme>.yaml
 ```
