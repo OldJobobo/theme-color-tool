@@ -94,6 +94,7 @@ def load_base16(path):
 
 def build_palette(base16):
     ansi = {i: base16[ANSI_MAP[i]] for i in range(16)}
+    base16_indexed = {i: base16[f"base{i:02X}"] for i in range(16)}
     ui = {
         "background": base16["base00"],
         "foreground": base16["base05"],
@@ -101,7 +102,38 @@ def build_palette(base16):
         "cursor": base16["base05"],
     }
     neovim = {key: base16[val] for key, val in NEOVIM_KEYS.items()}
-    return {"ansi": ansi, "ui": ui, "neovim": neovim, "base16": base16}
+    return {
+        "ansi": ansi,
+        "base16_indexed": base16_indexed,
+        "ui": ui,
+        "neovim": neovim,
+        "base16": base16,
+    }
+
+
+def build_gtk_ui_colors(base16):
+    return {
+        "background": base16["base00"],
+        "foreground": base16["base05"],
+        "black": base16["base00"],
+        "red": base16["base08"],
+        "green": base16["base0B"],
+        "yellow": base16["base0A"],
+        "blue": base16["base0D"],
+        "magenta": base16["base0E"],
+        "cyan": base16["base0C"],
+        "white": base16["base05"],
+        "bright_black": base16["base01"],
+        "bright_red": base16["base09"],
+        "bright_green": base16["base0B"],
+        "bright_yellow": base16["base0A"],
+        "bright_blue": base16["base0D"],
+        "bright_magenta": base16["base0F"],
+        "bright_cyan": base16["base0C"],
+        "bright_white": base16["base07"],
+        "selection_bg": base16["base0A"],
+        "selection_fg": base16["base00"],
+    }
 
 
 def render_template(template_text, context):
@@ -599,20 +631,20 @@ def update_fzf_fish(contents, palette):
 
 
 def update_vencord(contents, palette):
-    ansi = palette["ansi"]
+    base16_indexed = palette["base16_indexed"]
     replaced = set()
     report = []
 
     def repl(match):
         index = int(match.group(1), 10)
-        if index in ansi:
+        if index in base16_indexed:
             replaced.add(index)
-            return f"{match.group(0).split(':')[0]}: {ansi[index]};"
+            return f"{match.group(0).split(':')[0]}: {base16_indexed[index]};"
         return match.group(0)
 
     updated = re.sub(r"--color(\d{2})\s*:\s*#?[0-9A-Fa-f]{6};", repl, contents)
     for index in sorted(replaced):
-        report.append(f"--color{index:02d} -> {ansi[index]}")
+        report.append(f"--color{index:02d} -> {base16_indexed[index]}")
     missing = [i for i in range(16) if i not in replaced]
     if missing:
         report.append("missing colors: " + ", ".join(str(i) for i in missing))
@@ -1032,28 +1064,8 @@ def update_chromium(contents, palette):
 
 
 def update_gtk_css(contents, palette):
-    ansi = palette["ansi"]
     base16 = palette["base16"]
-    targets = {
-        "background": base16["base00"],
-        "foreground": base16["base05"],
-        "black": ansi[0],
-        "red": ansi[1],
-        "green": ansi[2],
-        "yellow": ansi[3],
-        "blue": ansi[4],
-        "magenta": ansi[5],
-        "cyan": ansi[6],
-        "white": ansi[7],
-        "bright_black": ansi[8],
-        "bright_red": ansi[9],
-        "bright_green": ansi[10],
-        "bright_yellow": ansi[11],
-        "bright_blue": ansi[12],
-        "bright_magenta": ansi[13],
-        "bright_cyan": ansi[14],
-        "bright_white": ansi[15],
-    }
+    targets = build_gtk_ui_colors(base16)
     replaced = set()
     report = []
     lines = contents.splitlines(keepends=True)
@@ -1086,30 +1098,8 @@ def update_gtk_css(contents, palette):
 
 
 def build_gtk_template_context(palette):
-    ansi = palette["ansi"]
     base16 = palette["base16"]
-    return {
-        "background": base16["base00"],
-        "foreground": base16["base05"],
-        "black": ansi[0],
-        "red": ansi[1],
-        "green": ansi[2],
-        "yellow": ansi[3],
-        "blue": ansi[4],
-        "magenta": ansi[5],
-        "cyan": ansi[6],
-        "white": ansi[7],
-        "bright_black": ansi[8],
-        "bright_red": ansi[9],
-        "bright_green": ansi[10],
-        "bright_yellow": ansi[11],
-        "bright_blue": ansi[12],
-        "bright_magenta": ansi[13],
-        "bright_cyan": ansi[14],
-        "bright_white": ansi[15],
-        "selection_bg": base16["base0A"],
-        "selection_fg": base16["base00"],
-    }
+    return build_gtk_ui_colors(base16)
 
 
 def update_gtk_template(contents, palette, template_path):
