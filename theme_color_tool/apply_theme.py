@@ -44,6 +44,7 @@ NEOVIM_KEYS = {
 }
 
 ANSI_RESET = "\x1b[0m"
+TEMPLATE_TOKEN_RE = re.compile(r"{{\s*([a-zA-Z0-9_]+)\s*}}")
 
 
 def hex_to_rgb(hex_color):
@@ -101,6 +102,19 @@ def build_palette(base16):
     }
     neovim = {key: base16[val] for key, val in NEOVIM_KEYS.items()}
     return {"ansi": ansi, "ui": ui, "neovim": neovim, "base16": base16}
+
+
+def render_template(template_text, context):
+    missing = set()
+
+    def repl(match):
+        key = match.group(1)
+        if key in context:
+            return context[key]
+        missing.add(key)
+        return match.group(0)
+
+    return TEMPLATE_TOKEN_RE.sub(repl, template_text), missing
 
 
 def update_ghostty(contents, palette):
@@ -1071,6 +1085,48 @@ def update_gtk_css(contents, palette):
     return "".join(new_lines), report
 
 
+def build_gtk_template_context(palette):
+    ansi = palette["ansi"]
+    base16 = palette["base16"]
+    return {
+        "background": base16["base00"],
+        "foreground": base16["base05"],
+        "black": ansi[0],
+        "red": ansi[1],
+        "green": ansi[2],
+        "yellow": ansi[3],
+        "blue": ansi[4],
+        "magenta": ansi[5],
+        "cyan": ansi[6],
+        "white": ansi[7],
+        "bright_black": ansi[8],
+        "bright_red": ansi[9],
+        "bright_green": ansi[10],
+        "bright_yellow": ansi[11],
+        "bright_blue": ansi[12],
+        "bright_magenta": ansi[13],
+        "bright_cyan": ansi[14],
+        "bright_white": ansi[15],
+        "selection_bg": base16["base0A"],
+        "selection_fg": base16["base00"],
+    }
+
+
+def update_gtk_template(contents, palette, template_path):
+    if not os.path.exists(template_path):
+        return contents, [f"missing template: {template_path}"]
+
+    with open(template_path, "r", encoding="utf-8") as f:
+        template_text = f.read()
+
+    context = build_gtk_template_context(palette)
+    rendered, missing = render_template(template_text, context)
+    report = [f"template -> {os.path.basename(template_path)}"]
+    if missing:
+        report.append("missing keys: " + ", ".join(sorted(missing)))
+    return rendered, report
+
+
 def update_aether_override(contents, palette):
     return update_gtk_css(contents, palette)
 
@@ -1367,6 +1423,14 @@ def parse_args(argv):
     parser = argparse.ArgumentParser(description="Apply Base16 scheme to theme files.")
     parser.add_argument("-s", "--scheme", required=True, help="Path to Base16 YAML scheme")
     parser.add_argument("-q", "--quiet", action="store_true", help="Suppress per-file reporting")
+    parser.add_argument(
+        "-t",
+        "--template",
+        nargs="?",
+        const="gtk",
+        choices=["gtk"],
+        help="Render supported files from templates (currently: gtk)",
+    )
     return parser.parse_args(argv)
 
 
@@ -1376,6 +1440,7 @@ def main(argv):
     palette = build_palette(base16)
 
     project_root = os.getcwd()
+    gtk_template_path = os.path.join(project_root, "templates", "gtk.css")
     ghostty_path = os.path.join(project_root, "ghostty.conf")
     neovim_path = os.path.join(project_root, "neovim.lua")
     alacritty_path = os.path.join(project_root, "alacritty.toml")
@@ -1399,6 +1464,12 @@ def main(argv):
     steam_path = os.path.join(project_root, "steam.css")
     zed_path = os.path.join(project_root, "aether.zed.json")
 
+    gtk_update = update_gtk_css
+    if args.template == "gtk":
+        gtk_update = lambda contents, palette: update_gtk_template(
+            contents, palette, gtk_template_path
+        )
+
     reports = [
         (ghostty_path, apply_file(ghostty_path, update_ghostty, palette)),
         (neovim_path, apply_file(neovim_path, update_neovim, palette)),
@@ -1418,7 +1489,7 @@ def main(argv):
         (btop_path, apply_file(btop_path, update_btop, palette)),
         (cava_path, apply_file(cava_path, update_cava, palette)),
         (chromium_path, apply_file(chromium_path, update_chromium, palette)),
-        (gtk_path, apply_file(gtk_path, update_gtk_css, palette)),
+        (gtk_path, apply_file(gtk_path, gtk_update, palette)),
         (aether_override_path, apply_file(aether_override_path, update_aether_override, palette)),
         (steam_path, apply_file(steam_path, update_steam, palette)),
         (zed_path, apply_file(zed_path, update_aether_zed, palette)),
