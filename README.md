@@ -12,6 +12,12 @@ Install with pipx (recommended):
 pipx install git+https://github.com/OldJobobo/theme-color-tool.git
 ```
 
+Upgrade an existing pipx install:
+
+```bash
+pipx upgrade theme-color-tool
+```
+
 Or install with pip:
 
 ```bash
