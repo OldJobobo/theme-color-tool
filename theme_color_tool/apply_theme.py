@@ -75,6 +75,8 @@ def format_report_line(entry):
 def load_base16(path):
     base16 = {}
     line_re = re.compile(r"^\s*(base[0-9A-Fa-f]{2})\s*:\s*['\"]?(#[0-9A-Fa-f]{6})")
+    if not os.path.exists(path):
+        raise FileNotFoundError(f"Scheme file not found: {path}")
     with open(path, "r", encoding="utf-8") as f:
         for line in f:
             match = line_re.match(line)
@@ -1426,7 +1428,11 @@ def parse_args(argv):
 
 def main(argv):
     args = parse_args(argv)
-    base16 = load_base16(args.scheme)
+    try:
+        base16 = load_base16(args.scheme)
+    except FileNotFoundError as exc:
+        print(str(exc), file=sys.stderr)
+        return 1
     palette = build_palette(base16)
 
     project_root = os.getcwd()
