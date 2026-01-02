@@ -610,12 +610,19 @@ def update_hyprland(contents, palette):
     base16 = palette["base16"]
     accent = base16["base0D"].lstrip("#")
     replaced = False
+    skipped = False
     report = []
     lines = contents.splitlines(keepends=True)
     new_lines = []
 
     for line in lines:
         if re.match(r"^\s*\$activeBorderColor\s*=", line):
+            rgb_values = re.findall(r"rgb\([0-9A-Fa-f]{6}\)", line)
+            if len(rgb_values) != 1 or re.search(r"\bdeg\b", line):
+                skipped = True
+                report.append("skipped $activeBorderColor (gradient)")
+                new_lines.append(line)
+                continue
             new_line, count = re.subn(
                 r"^(\s*\$activeBorderColor\s*=\s*)rgb\([0-9A-Fa-f]{6}\)",
                 lambda m: f"{m.group(1)}rgb({accent})",
@@ -628,7 +635,7 @@ def update_hyprland(contents, palette):
             continue
         new_lines.append(line)
 
-    if not replaced:
+    if not replaced and not skipped:
         report.append("missing $activeBorderColor")
 
     return "".join(new_lines), report
